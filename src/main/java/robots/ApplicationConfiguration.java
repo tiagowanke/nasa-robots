@@ -1,4 +1,4 @@
-package robots.config;
+package robots;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
