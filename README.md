@@ -12,3 +12,7 @@ Interface Movable: Todo o objecto que poderá se mover sobre um terreno deverá 
 
 
 Classe que contém o SpringApplication.run: ApplicationConfiguration.
+
+Cobertura de código:
+
+![alt text](https://github.com/tiagowanke/nasa-robots/blob/master/src/main/resources/static/img/coverage.png)
