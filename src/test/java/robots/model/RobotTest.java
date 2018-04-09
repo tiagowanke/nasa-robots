@@ -2,13 +2,25 @@ package robots.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.lang.reflect.Field;
+import java.util.Random;
+import java.util.stream.IntStream;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import robots.exception.InvalidPositionException;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Robot.class)
 public class RobotTest {
 
     @Test
@@ -38,6 +50,48 @@ public class RobotTest {
 
         robot.rotate('R').rotate('L');
         assertEquals(Direction.NORTH, robot.getDirection());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void executeCommandMustThrowsException() throws InvalidPositionException {
+
+        final Robot robot = new Robot(new Mars());
+        robot.executeCommand('T');
+
+    }
+
+    @Test
+    public void executeCommandMustExecuteAsExpected() throws Exception {
+
+        final Robot robot = spy(new Robot(new Mars()));
+        when(robot.move()).thenReturn(null);
+
+        // generate a random number of times to call execute commands
+        final int randomInt = new Random().ints(0, 5).findFirst().getAsInt();
+        IntStream.range(0, randomInt)
+        .forEach(idx -> {
+            try {
+                // move foward
+                robot.executeCommand('M');
+                // move left
+                robot.executeCommand('L');
+                // move right
+                robot.executeCommand('R');
+
+                // check if all the actions were called correctly
+                final int i = idx + 1;
+                verify(robot, times(i)).move();
+                verify(robot, times(i)).rotate('L');
+                verify(robot, times(i)).rotate('R');
+            } catch (final Exception e) {
+                Assert.fail("Didn't execute expected command.");
+            }
+        });
+
+        // handle when random number is 0
+        verify(robot, times(randomInt)).move();
+        verify(robot, times(randomInt)).rotate('L');
+        verify(robot, times(randomInt)).rotate('R');
     }
 
     @Test

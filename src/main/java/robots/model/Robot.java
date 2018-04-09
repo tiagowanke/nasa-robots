@@ -33,6 +33,7 @@ public class Robot implements Movable {
     /**
      * Move one position foward to the current {@link Robot#direction};
      */
+    @Override
     public Movable move() throws InvalidPositionException {
 
         int xToCheck = this.x;
@@ -68,6 +69,7 @@ public class Robot implements Movable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Movable rotate(char direction) {
 
         switch (direction) {
@@ -85,8 +87,29 @@ public class Robot implements Movable {
     }
 
     /**
+     *
+     * @param command L, R or M
+     * @throws InvalidPositionException If the given command puts the robot in a invalid position
+     * @throws IllegalArgumentException When informed command is invalid
+     */
+    public void executeCommand(char command) throws InvalidPositionException {
+        switch (command) {
+        case 'M':
+            this.move();
+            break;
+        case 'L':
+        case 'R':
+            this.rotate(command);
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported informed command. Command: " + command);
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
+    @Override
     public String currentPosition() {
         return String.format("(%d, %d, %c)", this.x, this.y, this.direction.getLetter());
     }

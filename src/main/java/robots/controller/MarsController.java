@@ -28,12 +28,12 @@ public class MarsController {
             try {
                 robot = new Robot(new Mars());
                 this.sendCommands(commands.toCharArray());
-                response = new ResponseEntity<String>(robot.currentPosition(), HttpStatus.OK);
+                response = new ResponseEntity<>(robot.currentPosition(), HttpStatus.OK);
             } catch (final InvalidPositionException e) {
-                response = new ResponseEntity<String>(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
+                response = new ResponseEntity<>(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
             }
         } else {
-            response = new ResponseEntity<String>(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
+            response = new ResponseEntity<>(BAD_REQUEST_MESSAGE, HttpStatus.BAD_REQUEST);
         }
 
         return response;
@@ -42,16 +42,10 @@ public class MarsController {
     private void sendCommands(char[] commands) throws InvalidPositionException {
 
         for (final char command : commands) {
-            switch (command) {
-            case 'M':
-                robot.move();
-                break;
-            case 'L':
-            case 'R':
-                robot.rotate(command);
-                break;
-            }
+            robot.executeCommand(command);
         }
     }
+
+
 
 }
