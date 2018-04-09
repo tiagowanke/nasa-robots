@@ -1,5 +1,7 @@
 package robots.model;
 
+import java.util.Objects;
+
 import robots.exception.InvalidPositionException;
 
 /**
@@ -14,8 +16,8 @@ public class Robot implements Movable {
     private Direction direction = Direction.NORTH;
     private final Terrain terrain;
 
-    public Robot(Terrain terrain) {
-        this.terrain = terrain;
+    public Robot(final Terrain terrain) {
+        this.terrain = Objects.requireNonNull(terrain);
     }
 
     public int getX() {
@@ -56,7 +58,7 @@ public class Robot implements Movable {
             throw new UnsupportedOperationException("Robot has a current direction that has no supported movement. Current direction: " + this.direction);
         }
 
-        if (this.terrain != null && this.terrain.canMove(xToCheck, yToCheck)) {
+        if (this.terrain.canMove(xToCheck, yToCheck)) {
             this.x = xToCheck;
             this.y = yToCheck;
         } else {

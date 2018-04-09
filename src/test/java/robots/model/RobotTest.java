@@ -23,6 +23,11 @@ import robots.exception.InvalidPositionException;
 @PrepareForTest(Robot.class)
 public class RobotTest {
 
+    @Test(expected = NullPointerException.class)
+    public void testConstructorWithNull() {
+        new Robot(null);
+    }
+
     @Test
     public void testInitialPosition() {
 
@@ -57,7 +62,6 @@ public class RobotTest {
 
         final Robot robot = new Robot(new Mars());
         robot.executeCommand('T');
-
     }
 
     @Test
