@@ -14,8 +14,13 @@ public class Robot implements Movable {
     private int x = 0;
     private int y = 0;
     private Direction direction = Direction.NORTH;
+
     private final Terrain terrain;
 
+    /**
+     * @throws NullPointerException
+     *             If terrain is null
+     */
     public Robot(final Terrain terrain) {
         this.terrain = Objects.requireNonNull(terrain);
     }
