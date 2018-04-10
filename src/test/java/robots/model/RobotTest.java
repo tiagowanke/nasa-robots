@@ -14,6 +14,8 @@ import java.util.stream.IntStream;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -22,6 +24,9 @@ import robots.exception.InvalidPositionException;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Robot.class)
 public class RobotTest {
+
+    @Mock
+    private Mars mockMars;
 
     private final int INITIAL_X = 0;
     private final int INITIAL_Y = 0;
@@ -36,7 +41,7 @@ public class RobotTest {
     @Test
     public void testInitialPosition() {
 
-        final Robot robot = new Robot(new Mars());
+        final Robot robot = new Robot(this.mockMars);
         assertEquals(INITIAL_X, robot.getX());
         assertEquals(INITIAL_Y, robot.getY());
         assertEquals(INITIAL_DIRECTION, robot.getDirection());
@@ -45,14 +50,14 @@ public class RobotTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void rotateMustThrowIllegalArgumentException() {
-        final Robot robot = new Robot(new Mars());
+        final Robot robot = new Robot(this.mockMars);
         robot.rotate('Z');
     }
 
     @Test
     public void rotateMustWorkAsExpected() {
 
-        final Robot robot = new Robot(new Mars());
+        final Robot robot = new Robot(this.mockMars);
         robot.rotate('L');
         assertEquals(Direction.WEST, robot.getDirection());
 
@@ -66,15 +71,15 @@ public class RobotTest {
     @Test(expected = IllegalArgumentException.class)
     public void executeCommandMustThrowsException() throws InvalidPositionException {
 
-        final Robot robot = new Robot(new Mars());
+        final Robot robot = new Robot(this.mockMars);
         robot.executeCommand('T');
     }
 
     @Test
     public void executeCommandMustExecuteAsExpected() throws Exception {
 
-        final Robot robot = spy(new Robot(new Mars()));
-        when(robot.move()).thenReturn(null);
+        when(this.mockMars.canMove(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+        final Robot robot = spy(new Robot(this.mockMars));
 
         // generate a random number of times to call execute commands
         final int randomInt = new Random().ints(0, 5).findFirst().getAsInt();
@@ -107,10 +112,15 @@ public class RobotTest {
     @Test
     public void moveOutsideToAllDirectionOnMars() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        // move six positions to North (initial position)
-        Robot robot = new Robot(new Mars());
+        // move five positions to North (initial position) considering a terrain with 5 positions
+        Robot robot = new Robot(this.mockMars);
         try {
-            robot.move().move().move().move().move().move();
+            // first four moves must work
+            when(this.mockMars.canMove(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+            robot.move().move().move().move();
+            when(this.mockMars.canMove(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
+            // the fifth move must throw exception since is at the edge
+            robot.move();
             fail();
         } catch (final InvalidPositionException e) {
             // check if positions were changed must be on the edge of north
@@ -123,9 +133,10 @@ public class RobotTest {
         direction.setAccessible(true);
 
         // move six positions to South
-        robot = new Robot(new Mars());
+        robot = new Robot(this.mockMars);
         direction.set(robot, Direction.SOUTH);
         try {
+            when(this.mockMars.canMove(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
             robot.move().move().move().move().move().move();
             fail();
         } catch (final InvalidPositionException e) {
@@ -135,11 +146,14 @@ public class RobotTest {
             assertEquals(Direction.SOUTH, robot.getDirection());
         }
 
-        // move six positions to East
-        robot = new Robot(new Mars());
+        // move five positions to East
+        robot = new Robot(this.mockMars);
         direction.set(robot, Direction.EAST);
         try {
-            robot.move().move().move().move().move().move();
+            when(this.mockMars.canMove(Mockito.anyInt(), Mockito.anyInt())).thenReturn(true);
+            robot.move().move().move().move();
+            when(this.mockMars.canMove(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
+            robot.move();
             fail();
         } catch (final InvalidPositionException e) {
             // check if positions were changed
@@ -149,9 +163,10 @@ public class RobotTest {
         }
 
         // move six positions to West
-        robot = new Robot(new Mars());
+        robot = new Robot(this.mockMars);
         direction.set(robot, Direction.WEST);
         try {
+            when(this.mockMars.canMove(Mockito.anyInt(), Mockito.anyInt())).thenReturn(false);
             robot.move().move().move().move().move().move();
             fail();
         } catch (final InvalidPositionException e) {
@@ -164,7 +179,7 @@ public class RobotTest {
 
     @Test
     public void testCurrentPosition() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-        final Robot robot = new Robot(new Mars());
+        final Robot robot = new Robot(this.mockMars);
 
         final Field x = robot.getClass().getDeclaredField("x");
         x.setAccessible(true);
