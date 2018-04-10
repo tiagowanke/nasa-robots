@@ -23,6 +23,11 @@ import robots.exception.InvalidPositionException;
 @PrepareForTest(Robot.class)
 public class RobotTest {
 
+    private final int INITIAL_X = 0;
+    private final int INITIAL_Y = 0;
+    private final Direction INITIAL_DIRECTION = Direction.NORTH;
+    private final String INITIAL_POSITION = String.format("(%d, %d, %c)", INITIAL_X, INITIAL_Y, INITIAL_DIRECTION.getLetter());
+
     @Test(expected = NullPointerException.class)
     public void testConstructorWithNull() {
         new Robot(null);
@@ -32,9 +37,10 @@ public class RobotTest {
     public void testInitialPosition() {
 
         final Robot robot = new Robot(new Mars());
-        assertEquals(0, robot.getX());
-        assertEquals(0, robot.getY());
-        assertEquals(Direction.NORTH, robot.getDirection());
+        assertEquals(INITIAL_X, robot.getX());
+        assertEquals(INITIAL_Y, robot.getY());
+        assertEquals(INITIAL_DIRECTION, robot.getDirection());
+        assertEquals(INITIAL_POSITION, robot.currentPosition());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -107,7 +113,7 @@ public class RobotTest {
             robot.move().move().move().move().move().move();
             fail();
         } catch (final InvalidPositionException e) {
-            // check if positions were changed
+            // check if positions were changed must be on the edge of north
             assertEquals(0, robot.getX());
             assertEquals(4, robot.getY());
             assertEquals(Direction.NORTH, robot.getDirection());
@@ -159,7 +165,6 @@ public class RobotTest {
     @Test
     public void testCurrentPosition() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
         final Robot robot = new Robot(new Mars());
-        assertEquals("(0, 0, N)", robot.currentPosition());
 
         final Field x = robot.getClass().getDeclaredField("x");
         x.setAccessible(true);
